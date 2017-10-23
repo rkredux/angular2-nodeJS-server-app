@@ -1,21 +1,34 @@
 var express = require('express');
 var router = express.Router();
+var User = require("../models/user"); 
 
 router.get('/', function (req, res, next) {
-    res.render('index');
+	User.findOne({}, function(err, doc){
+		if(err){
+			return res.send("No such user exists"); 
+		} else{
+			return res.render("message", {email: doc.email})
+		}
+	})
 });
 
 router.get("/message", function(req, res, next){
-	res.render("message", { message: req.params.msg }); 
+	res.send("Email has been saved"); 
 })
 
-router.get("/message/:msg", function(req, res, next){
-	res.render("message", { message: req.params.msg }); 
-})
 
-router.post("/message", function(req, res, next){
-	const message = req.body.message; 
-	res.redirect(`/message/${message}`); 
-})
+router.post("/", function(req, res, next){
+	const email = req.body.email;
+	const user = new User({
+		firstName: "Rahul", 
+		lastName: "Kumar", 
+		password: "secret", 
+		email: email
+	}); 
+
+	user.save(); 
+	console.log(user); 
+	res.redirect("/message"); 
+}); 
 
 module.exports = router;
